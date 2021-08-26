@@ -4,38 +4,37 @@ public class Main {
     public static void main(String[] args) {
         int account; //открыто N корпоративных счетов
         int managers; //в компании работает M менеджеров
-        long payment = 0; // сумма выплаты
-        int resultManagers = 0; // сколько менеджеров получат такую сумму
-        long sumCorporateAccount = 0; //общая сумма всех счетов
-        Scanner scanner = new Scanner(System.in);
+        long sumCorporateAccount = 0L; //общая сумма всех счетов
+        long payment = 0L; // сумма выплаты менеджерам
+        //Первая строка - целые числа N и M через пробел (1≤N≤100 000, 1≤M≤100 000)
+        Scanner scanner = new Scanner(System.in);  //сканер для чтения потока
         String lineOne = scanner.nextLine();
         String[] strLine = lineOne.split(" ");
         account = Integer.parseInt(strLine[0]);
         managers = Integer.parseInt(strLine[1]);
-        //вносим данные о суммах на счетах до 100 000 000 и узнаем баланс всех счетов
-        int[] amountsMoneyAll = new int[account];
+        //Далее N строк, на каждой из которых одно целое число Cn (0≤Cn≤100 000 000)
+        long[] amountsMoneyAll = new long[account]; // массив значений счетов
         for (int i = 0; i < amountsMoneyAll.length; i++) {
-            amountsMoneyAll[i] = Integer.parseInt(scanner.nextLine());
-            sumCorporateAccount = sumCorporateAccount + amountsMoneyAll[i];
+            amountsMoneyAll[i] = Long.parseLong(scanner.nextLine());
+            sumCorporateAccount += amountsMoneyAll[i];
         }
-        // Если денег на счетах компании не хватит на то, чтобы выдать премию хотя бы по 1 у.е.
-        if (sumCorporateAccount / managers >= 1) {
-            long minCorporateAccount = sumCorporateAccount / managers; // - возможная максимальная выплата в целом со всех счетов
-            do {
+        if (sumCorporateAccount > 0 && managers > 0) {
+            payment = sumCorporateAccount / managers; // - возможная максимальная выплата в целом с любого счета
+        }
+        if (payment != 0) {
+            while(true) {
+                int resultManagers = 0; // сколько менеджеров получат такую сумму
                 for (int i = 0; i < amountsMoneyAll.length; i++) {
-                    // узнаем сколько менеджеров может получить таких сумм с каждого счета
-                    if (amountsMoneyAll[i] != 0) {
-                        resultManagers = resultManagers + (int)((amountsMoneyAll[i] - amountsMoneyAll[i] % minCorporateAccount) / minCorporateAccount);
-                    }
+                    // узнаем сколько менеджеров может получить такую сумму
+                    resultManagers += amountsMoneyAll[i] / payment;
                 }
                 // проверим, всем ли достанется, если не всем, то сумму выплаты уменьшаем и повторяем проверку
-                if (resultManagers != managers) {
-                    minCorporateAccount = minCorporateAccount - 1;
-                    resultManagers = 0;
+                if (resultManagers >= managers) {
+                    break;
                 } else {
-                    payment = minCorporateAccount;
+                    payment--;
                 }
-            } while (resultManagers != managers);
+            }
         }
         System.out.println(payment);
     }
